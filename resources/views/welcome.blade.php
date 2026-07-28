@@ -11,7 +11,11 @@
     </head>
     <body class="bg-primary">
         <header>
-            
+            <?= var_dump(Auth::check()) ?>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit">Logout</button>
+            </form>
         </header>
     </body>
 </html>

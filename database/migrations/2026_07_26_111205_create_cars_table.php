@@ -24,8 +24,10 @@ return new class extends Migration
 
             $table->string('brand', 100)->nullable();
             $table->string('model', 100)->nullable();
-            $table->integer('year')->nullable();
+            $table->year('year')->nullable();
             $table->string('chassis_number', 100)->unique()->nullable();
+
+            $table->decimal('buy_price', 12, 2)->nullable();
 
             $table->enum('status', [
                 'searching',
@@ -35,10 +37,14 @@ return new class extends Migration
                 'arrived',
                 'on_truck',
                 'completed',
-                'canceled'
+                'cancelled'
             ])->default('searching');
 
             $table->text('notes')->nullable();
+
+            $table->timestamp('purchased_at')->nullable();
+            $table->timestamp('arrived_at')->nullable();
+            $table->timestamp('completed_at')->nullable();
 
             $table->timestamps();
         });
