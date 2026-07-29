@@ -13,12 +13,12 @@ class ClientController extends Controller
         return view('clients.index', compact('clients'));
     }
 
-    public function showCreate()
+    public function create()
     {
         return view('clients.create');
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
         $validatedData = $request->validate([
             'full_name' => 'required|string|max:255',

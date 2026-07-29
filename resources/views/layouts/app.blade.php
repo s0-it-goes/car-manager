@@ -18,7 +18,7 @@
 
     <div class="flex min-h-screen">
 
-        <aside class="w-36 bg-gray-900 text-white flex flex-col">
+        <aside class="fixed left-0 top-0 h-screen w-36 bg-gray-900 text-white flex flex-col">
 
             <nav class="flex-1 px-4 py-6 space-y-3">
 
@@ -61,7 +61,7 @@
 
         </aside>
 
-        <main class="flex-1 p-8">
+        <main class="flex-1 p-8 ml-36">
 
             @yield('content')
 

@@ -12,7 +12,7 @@
     </h1>
 
 
-    <a href="#"
+    <a href="{{ route('clients.create') }}"
        class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition">
         Добавить клиента
     </a>
