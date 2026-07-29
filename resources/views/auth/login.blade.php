@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Login</title>
+    <title>Вход</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -85,36 +85,3 @@
 
 </body>
 </html>
-<!--
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <title>Login page</title>
-
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-        
-    </head>
-    <body class="bg-primary">
-        <header>
-            <h1 style="font-size: 24px; text-align: center; margin-top: 50px">Login page</h1>
-        </header>
-        <form method="POST" action="/login">
-            @csrf
-            <div style="display: flex; flex-direction: column; align-items: center; margin-top: 50px">
-                <label for="login">Login:</label>
-                <input type="text" name="login" id="login" required>
-            </div>
-            <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20px">
-                <label for="password">Password:</label>
-                <input type="password" name="password" id="password" required>
-            </div>
-            <div style="display: flex; justify-content: center; margin-top: 20px; cursor: pointer">
-                <button type="submit">Login</button>
-            </div>
-        </form>
-    </body>
-</html>
--->
