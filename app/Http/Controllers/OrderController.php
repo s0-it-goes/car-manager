@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CarStatus;
+use App\Enums\Country;
 use App\Models\Car;
 use App\Models\Client;
 use Illuminate\Http\Request;
@@ -29,8 +31,8 @@ class OrderController extends Controller
 
         return view('orders.create', array_merge(compact('clients'),
             [
-                'countries' => \App\Enums\Country::cases(),
-                'statuses' => \App\Enums\CarStatus::cases(),
+                'countries' => Country::cases(),
+                'statuses' => CarStatus::cases(),
         ]));
     }
 
@@ -89,6 +91,51 @@ class OrderController extends Controller
         return redirect()
             ->route('orders.index')
             ->with('success', 'Заказ успешно создан.');
+    }
+
+    public function show(Car $car)
+    {
+        return view('orders.show', [
+            'car' => $car,
+            'countries' => Country::cases(),
+            'statuses' => CarStatus::cases(),
+        ]);
+    }
+
+    public function update(Request $request, Car $car)
+    {
+        $validated = $request->validate([
+
+            'country' => ['required'],
+            'brand' => ['nullable', 'string', 'max:100'],
+            'model' => ['nullable', 'string', 'max:100'],
+            'year' => ['nullable', 'integer'],
+            'chassis_number' => [
+                'nullable',
+                'string',
+                'max:100',
+                'unique:cars,chassis_number,' . $car->id,
+            ],
+
+            'buy_price' => ['nullable', 'numeric'],
+
+            'status' => ['required'],
+
+            'notes' => ['nullable', 'string'],
+
+            'purchased_at' => ['nullable', 'date'],
+
+            'arrived_at' => ['nullable', 'date'],
+
+            'completed_at' => ['nullable', 'date'],
+
+        ]);
+
+        $car->update($validated);
+
+        return redirect()
+            ->route('orders.show', $car)
+            ->with('success', 'Заказ успешно обновлен.');
     }
 
 }

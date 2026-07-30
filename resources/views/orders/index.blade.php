@@ -62,7 +62,9 @@
                 {{-- Заказы клиента --}}
                 @foreach($client->cars as $order)
 
-                    <tr class="border-b hover:bg-gray-100 transition">
+                    <tr
+                        onclick="window.location='{{ route('orders.show', $order) }}'"
+                        class="border-b hover:bg-gray-100 transition cursor-pointer">
 
                         <td class="px-6 py-4 font-medium">
 

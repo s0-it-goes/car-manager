@@ -31,6 +31,10 @@ Route::middleware('auth')->group(function () {
         ->name('orders.create');
     Route::post('/orders/store', [OrderController::class, 'store'])
         ->name('orders.store');
+    Route::get('/orders/{car}', [OrderController::class, 'show'])
+    ->name('orders.show');
+    Route::put('/orders/{car}', [OrderController::class, 'update'])
+    ->name('orders.update');
 
     Route::get('/archive', function () {
         return view('archive.index');
