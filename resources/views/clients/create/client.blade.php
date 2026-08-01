@@ -36,7 +36,7 @@
 
             @endif
 
-            <form action="{{ route('clients.store') }}" method="POST">
+            <form action="{{ route('clients.store.client') }}" method="POST">
 
                 @csrf
 
@@ -75,9 +75,25 @@
                         value="{{ old('phone') }}"
                         placeholder="+7 (999) 999-99-99"
                         class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none"
-                        required
                     >
 
+                </div>
+
+                <div class="mb-6">
+
+
+                    <label for="notes"
+                           class="block text-sm font-medium text-gray-700 mb-2">
+                        Заметки
+                    </label>
+                    
+                    <textarea id="notes"
+                        name="notes"
+                        type="text"
+                        placeholder="..."
+                        rows=3
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none"
+                        >{{ old('notes') }}</textarea>
                 </div>
 
                 <div class="flex justify-center gap-4">

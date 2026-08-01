@@ -12,9 +12,9 @@
     </h1>
 
 
-    <a href="{{ route('clients.create') }}"
-       class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition">
-        Добавить клиента
+    <a href="{{ route('clients.create.type') }}"
+        class="px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition">
+            Добавить
     </a>
 
 </div>
@@ -30,7 +30,7 @@
 
             <tr>
                 <th class="px-6 py-3 text-left">
-                    ФИО
+                    Имя
                 </th>
 
                 <th class="px-6 py-3 text-left">
@@ -38,7 +38,7 @@
                 </th>
 
                 <th class="px-6 py-3 text-left">
-                    Автомобили
+                    Количество активных заказов
                 </th>
 
                 <th class="px-6 py-3 text-left">
@@ -54,59 +54,125 @@
         <tbody>
 
 
-        @forelse($clients as $client)
+{{-- Дилеры --}}
+
+@foreach($dealers as $dealer)
 
 
-            <tr class="border-b hover:bg-gray-100 transition">
+<tr class="bg-gray-200 border-b">
 
-                <td class="px-6 py-4 font-medium">
+    <td colspan="4"
+        class="px-6 py-3 font-bold text-gray-800">
 
-                    {{ $client->full_name }}
-                    
-                </td>
+        {{ $dealer->full_name }}
 
+    </td>
 
-                <td class="px-6 py-4">
-
-                    {{ $client->phone ?? '—' }}
-
-                </td>
+</tr>
 
 
-                <td class="px-6 py-4">
+@foreach($dealer->clients as $client)
 
-                    {{ $client->cars->count() }}
-
-                </td>
+<tr class="border-b hover:bg-gray-100 transition">
 
 
-                <td class="px-6 py-4">
+    <td class="px-6 py-4 font-medium">
 
-                    {{ $client->updated_at->format('d.m.Y H:i') }}
+        {{ $client->full_name }}
 
-                </td>
-
-
-            </tr>
+    </td>
 
 
-        @empty
+    <td class="px-6 py-4">
+
+        {{ $client->phone ?? '—' }}
+
+    </td>
 
 
-            <tr>
+    <td class="px-6 py-4">
 
-                <td colspan="5"
-                    class="px-6 py-6 text-center text-gray-500">
-                    Клиентов пока нет
-                </td>
+        {{ $client->cars->count() }}
 
-            </tr>
+    </td>
 
 
-        @endforelse
+    <td class="px-6 py-4">
+
+        {{ $client->updated_at->format('d.m.Y H:i') }}
+
+    </td>
 
 
-        </tbody>
+</tr>
+
+
+@endforeach
+
+
+@endforeach
+
+
+
+{{-- Обычные клиенты --}}
+
+@foreach($clients as $client)
+
+
+<tr class="border-b hover:bg-gray-100 transition">
+
+
+    <td class="px-6 py-4 font-medium">
+
+        {{ $client->full_name }}
+
+    </td>
+
+
+    <td class="px-6 py-4">
+
+        {{ $client->phone ?? '—' }}
+
+    </td>
+
+
+    <td class="px-6 py-4">
+
+        {{ $client->cars->count() }}
+
+    </td>
+
+
+    <td class="px-6 py-4">
+
+        {{ $client->updated_at->format('d.m.Y H:i') }}
+
+    </td>
+
+
+</tr>
+
+
+@endforeach
+
+
+@if($clients->isEmpty() && $dealers->isEmpty())
+
+<tr>
+
+<td colspan="4"
+    class="px-6 py-6 text-center text-gray-500">
+
+    Клиентов пока нет
+
+</td>
+
+</tr>
+
+@endif
+
+
+</tbody>
 
 
     </table>

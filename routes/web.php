@@ -19,11 +19,17 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/clients', [ClientController::class, 'index'])
     ->name('clients.index');
-
-    Route::get('/clients/create', [ClientController::class, 'create'])
-    ->name('clients.create');
-    Route::post('/clients/create', [ClientController::class, 'store'])
-    ->name('clients.store');
+    Route::get('/clients/create/type', function () {
+        return view('clients.create.type');
+    })->name('clients.create.type');
+    Route::get('/clients/create/client', [ClientController::class, 'create'])
+    ->name('clients.create.client');
+    Route::get('/clients/create/dealer', [ClientController::class, 'create'])
+    ->name('clients.create.dealer');
+    Route::post('/clients/create/client', [ClientController::class, 'storeClient'])
+    ->name('clients.store.client');
+    Route::post('/clients/create/dealer', [ClientController::class, 'storeDealer'])
+    ->name('clients.store.dealer');
 
     Route::get('/orders', [OrderController::class, 'index'])
         ->name('orders.index');

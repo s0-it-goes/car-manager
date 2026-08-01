@@ -24,6 +24,9 @@
         <thead class="bg-gray-900 text-white">
             <tr>
                 <th class="px-6 py-3 text-left">
+                    Клиент
+                </th>
+                <th class="px-6 py-3 text-left">
                     Автомобиль
                 </th>
 
@@ -50,21 +53,19 @@
 
             @forelse($clients as $client)
 
-                {{-- Вкладка клиента --}}
-                <tr class="bg-gray-200">
-
-                    <td colspan="6" class="px-6 py-3 font-bold text-gray-800 break-words">
-                        {{ $client->full_name }}
-                    </td>
-
-                </tr>
-
-                {{-- Заказы клиента --}}
                 @foreach($client->cars as $order)
 
                     <tr
                         onclick="window.location='{{ route('orders.show', $order) }}'"
                         class="border-b hover:bg-gray-100 transition cursor-pointer">
+
+
+                        <td class="px-6 py-4 font-medium">
+
+                            {{ $client->full_name }}
+
+                        </td>
+
 
                         <td class="px-6 py-4 font-medium">
 
@@ -81,15 +82,20 @@
 
                         </td>
 
+
                         <td class="px-6 py-4">
 
                             {{ $order->country->label() }}
 
                         </td>
 
+
                         <td class="px-6 py-4">
+
                             {{ $order->status->label() }}
+
                         </td>
+
 
                         <td class="px-6 py-4">
 
@@ -98,10 +104,13 @@
                                 {{ number_format($order->buy_price, 2, ',', ' ') }} ₽
 
                             @else
+
                                 —
+
                             @endif
 
                         </td>
+
 
                         <td class="px-6 py-4">
 
@@ -109,11 +118,15 @@
 
                         </td>
 
+
                     </tr>
+
 
                 @endforeach
 
+
             @empty
+
 
             <tr>
 
@@ -125,6 +138,7 @@
                 </td>
 
             </tr>
+
 
             @endforelse
 
