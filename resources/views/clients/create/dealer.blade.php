@@ -69,7 +69,6 @@
                     
                     <textarea id="notes"
                         name="notes"
-                        type="text"
                         placeholder="..."
                         rows=3
                         class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none"

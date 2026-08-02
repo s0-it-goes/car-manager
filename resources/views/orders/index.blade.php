@@ -51,7 +51,24 @@
 
         <tbody>
 
-            @forelse($clients as $client)
+
+            {{-- Обычные клиенты --}}
+
+            @if($clients->count())
+
+            <tr class="bg-gray-200 border-b">
+
+                <td colspan="6"
+                    class="px-6 py-3 font-bold text-gray-800">
+
+                    Мои клиенты
+
+                </td>
+
+            </tr>
+
+
+            @foreach($clients as $client)
 
                 @foreach($client->cars as $order)
 
@@ -69,15 +86,10 @@
 
                         <td class="px-6 py-4 font-medium">
 
-                            {{ $order->brand ?? '—' }}
-
-                            {{ $order->model ?? '' }}
-
+                            {{ trim(($order->brand ?? '') . ' ' . ($order->model ?? '')) ?: '—' }}
 
                             @if($order->year)
-
                                 ({{ $order->year }})
-
                             @endif
 
                         </td>
@@ -85,34 +97,28 @@
 
                         <td class="px-6 py-4">
 
-                            {{ $order->country->label() }}
+                            {{ $order->country?->label() ?? '—' }}
 
                         </td>
 
 
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 whitespace-nowrap">
 
-                            {{ $order->status->label() }}
-
-                        </td>
-
-
-                        <td class="px-6 py-4">
-
-                            @if($order->buy_price)
-
-                                {{ number_format($order->buy_price, 2, ',', ' ') }} ₽
-
-                            @else
-
-                                —
-
-                            @endif
+                            {{ $order->status?->label() ?? '—' }}
 
                         </td>
 
 
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 whitespace-nowrap">
+
+                            {{ $order->buy_price 
+                                ? number_format($order->buy_price, 2, ',', ' ') . ' ₽'
+                                : '—' }}
+
+                        </td>
+
+
+                        <td class="px-6 py-4 whitespace-nowrap">
 
                             {{ $order->updated_at->format('d.m.Y H:i') }}
 
@@ -121,26 +127,113 @@
 
                     </tr>
 
+                @endforeach
+
+            @endforeach
+
+            @endif
+
+            {{-- Клиенты перекупов --}}
+
+            @foreach($dealers as $dealer)
+
+
+                <tr class="bg-gray-200 border-b">
+
+                    <td colspan="6"
+                        class="px-6 py-3 font-bold text-gray-800">
+
+                        Перекуп: {{ $dealer->full_name }}
+
+                    </td>
+
+                </tr>
+
+
+
+                @foreach($dealer->clients as $client)
+
+
+                    @foreach($client->cars as $order)
+
+
+                    <tr
+                        onclick="window.location='{{ route('orders.show', $order) }}'"
+                        class="border-b hover:bg-gray-100 transition cursor-pointer">
+
+
+                        <td class="px-6 py-4 font-medium pl-10">
+
+                            {{ $client->full_name }}
+
+                        </td>
+
+
+                        <td class="px-6 py-4 font-medium">
+
+                            {{ trim(($order->brand ?? '') . ' ' . ($order->model ?? '')) ?: '—' }}
+
+                            @if($order->year)
+                                ({{ $order->year }})
+                            @endif
+
+                        </td>
+
+
+                        <td class="px-6 py-4">
+
+                            {{ $order->country?->label() ?? '—' }}
+
+                        </td>
+
+
+                        <td class="px-6 py-4 whitespace-nowrap">
+
+                            {{ $order->status?->label() ?? '—' }}
+
+                        </td>
+
+
+                        <td class="px-6 py-4 whitespace-nowrap">
+
+                            {{ $order->buy_price 
+                                ? number_format($order->buy_price, 2, ',', ' ') . ' ₽'
+                                : '—' }}
+
+                        </td>
+
+
+                        <td class="px-6 py-4 whitespace-nowrap">
+
+                            {{ $order->updated_at->format('d.m.Y H:i') }}
+
+                        </td>
+
+
+                    </tr>
+
+                    @endforeach
 
                 @endforeach
 
+            @endforeach
 
-            @empty
 
+            @if($clients->isEmpty() && $dealers->isEmpty())
 
             <tr>
 
-                <td colspan="6"
-                    class="px-6 py-6 text-center text-gray-500">
+            <td colspan="6"
+                class="px-6 py-6 text-center text-gray-500">
 
-                    Заказов пока нет
+                Заказов пока нет
 
-                </td>
+            </td>
 
             </tr>
 
+            @endif
 
-            @endforelse
 
         </tbody>
 

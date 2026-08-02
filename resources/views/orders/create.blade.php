@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div x-data="{ newClient: false }">
+<div x-data="{ newClient: false }" x-cloak>
 
     <h1 class="text-3xl font-bold text-gray-800 mb-6">
         Новый заказ
@@ -52,11 +52,14 @@
                             </label>
 
                             <button type="button"
-                                    @click="newClient = !newClient"
+                                    @click="
+                                        newClient = !newClient;
+                                        if(newClient) {
+                                            document.getElementById('client_id').value = '';
+                                        }
+                                    "
                                     class="text-sm text-blue-600 hover:underline cursor-pointer">
-
                                 + Новый клиент
-
                             </button>
 
                         </div>
@@ -76,6 +79,10 @@
                                     {{ old('client_id') == $client->id ? 'selected' : '' }}>
 
                                     {{ $client->full_name }}
+
+                                    @if($client->dealer)
+                                        (перекуп: {{ $client->dealer->full_name }})
+                                    @endif
 
                                 </option>
 

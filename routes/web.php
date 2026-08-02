@@ -22,6 +22,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/clients/create/type', function () {
         return view('clients.create.type');
     })->name('clients.create.type');
+    
     Route::get('/clients/create/client', [ClientController::class, 'create'])
     ->name('clients.create.client');
     Route::get('/clients/create/dealer', [ClientController::class, 'create'])

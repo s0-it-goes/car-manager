@@ -13,9 +13,41 @@ class Client extends Model
         'dealer_id'
     ];
 
-    public function cars(){
+
+    protected static function booted()
+    {
+        static::updated(function ($client) {
+
+            // Если клиент изменился только из-за touch от Car,
+            // эти поля будут пустые
+            $changed = $client->getChanges();
+
+
+            if (
+                isset($changed['full_name']) ||
+                isset($changed['phone']) ||
+                isset($changed['notes']) ||
+                isset($changed['dealer_id'])
+            ) {
+                $client->dealer?->touch();
+            }
+
+        });
+
+
+        static::created(function ($client) {
+
+            $client->dealer?->touch();
+
+        });
+    }
+
+
+    public function cars()
+    {
         return $this->hasMany(Car::class);
     }
+
 
     public function dealer()
     {

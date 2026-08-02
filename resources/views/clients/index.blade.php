@@ -20,8 +20,8 @@
 </div>
 
 
-
-<div class="bg-white rounded-lg shadow overflow-hidden">
+<div class="bg-white rounded-lg shadow overflow-hidden"
+     x-data="{ openDealer: null }">
 
 
     <table class="w-full">
@@ -58,13 +58,37 @@
 
 @foreach($dealers as $dealer)
 
-
-<tr class="bg-gray-200 border-b">
+<tr class="bg-gray-200 border-b cursor-pointer hover:bg-gray-300 transition"
+    @click="openDealer === {{ $dealer->id }} ? openDealer = null : openDealer = {{ $dealer->id }}">
 
     <td colspan="4"
         class="px-6 py-3 font-bold text-gray-800">
 
+        <span
+            class="inline-flex items-center justify-center w-6 h-6 mr-2 rounded-full bg-gray-300 relative top-[2px] transition-transform duration-200"
+            :class="openDealer === {{ $dealer->id }} ? 'rotate-90' : ''">
+
+            <svg
+                class="w-4 h-4 text-gray-700"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"/>
+
+            </svg>
+
+        </span>
+
         {{ $dealer->full_name }}
+
+        <span class="text-sm text-gray-500 ml-2">
+            ({{ $dealer->clients->count() }} клиентов)
+        </span>
 
     </td>
 
@@ -73,10 +97,12 @@
 
 @foreach($dealer->clients as $client)
 
-<tr class="border-b hover:bg-gray-100 transition">
+<tr x-show="openDealer === {{ $dealer->id }}"
+    x-transition
+    class="border-b hover:bg-gray-100 transition">
 
 
-    <td class="px-6 py-4 font-medium">
+    <td class="px-6 py-4 pl-12 font-medium">
 
         {{ $client->full_name }}
 
@@ -106,12 +132,10 @@
 
 </tr>
 
-
 @endforeach
 
 
 @endforeach
-
 
 
 {{-- Обычные клиенты --}}

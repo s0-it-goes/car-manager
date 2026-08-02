@@ -8,3 +8,7 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
     --color-primary: lightgray;
 }
+
+[x-cloak] {
+    display: none !important;
+}
