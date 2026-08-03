@@ -11,7 +11,7 @@
     </h1>
 
     <a href="{{ route('orders.create') }}"
-       class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition">
+       class="px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition">
         Добавить заказ
     </a>
 
@@ -77,7 +77,7 @@
                         class="border-b hover:bg-gray-100 transition cursor-pointer">
 
 
-                        <td class="px-6 py-4 font-medium">
+                        <td class="px-6 py-4 font-medium pl-10">
 
                             {{ $client->full_name }}
 

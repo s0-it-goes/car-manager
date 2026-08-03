@@ -5,62 +5,150 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Dealer;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Route;
+use App\Enums\CarStatus;
 
 class ClientController extends Controller
 {
+
     public function index()
     {
-        // Клиенты без дилера
+        // Активные клиенты без дилера
         $clients = Client::whereNull('dealer_id')
+            ->where(function ($query) {
+
+                $query->whereDoesntHave('cars') // нет машин вообще
+
+                ->orWhereHas('cars', function ($q) {
+                    // есть активные машины
+                    $q->whereNotIn('status', [
+                        CarStatus::COMPLETED,
+                        CarStatus::CANCELLED
+                    ]);
+                });
+
+            })
+            ->with([
+                'cars' => function ($query) {
+                    $query->whereNotIn('status', [
+                        CarStatus::COMPLETED,
+                        CarStatus::CANCELLED
+                    ])
+                    ->orderByDesc('updated_at');
+                }
+            ])
+            ->orderByDesc('updated_at')
+            ->get();
+
+
+
+        // Активные клиенты дилеров
+        $dealers = Dealer::with([
+            'clients' => function ($query) {
+
+                $query->where(function ($q) {
+
+                    $q->whereDoesntHave('cars')
+
+                    ->orWhereHas('cars', function ($cars) {
+                        $cars->whereNotIn('status', [
+                            CarStatus::COMPLETED,
+                            CarStatus::CANCELLED
+                        ]);
+                    });
+
+                });
+
+            },
+
+            'clients.cars' => function ($query) {
+
+                $query->whereNotIn('status', [
+                    CarStatus::COMPLETED,
+                    CarStatus::CANCELLED
+                ]);
+
+            }
+
+        ])
+        ->whereHas('clients')
+        ->orderBy('full_name')
+        ->get();
+
+
+
+
+        // Архивные клиенты без дилера
+        $archiveClients = Client::whereNull('dealer_id')
+            ->whereDoesntHave('cars', function ($query) {
+
+                $query->whereNotIn('status', [
+                    CarStatus::COMPLETED,
+                    CarStatus::CANCELLED
+                ]);
+
+            })
+            ->whereHas('cars')
             ->with('cars')
             ->orderByDesc('updated_at')
             ->get();
 
 
-        // Дилеры с их клиентами
-        $dealers = Dealer::with([
+
+
+        // Архивные клиенты дилеров
+        $archiveDealers = Dealer::with([
+            'clients' => function ($query) {
+
+                $query->whereDoesntHave('cars', function ($q) {
+
+                    $q->whereNotIn('status', [
+                        CarStatus::COMPLETED,
+                        CarStatus::CANCELLED
+                    ]);
+
+                })
+                ->whereHas('cars');
+
+            },
+
             'clients.cars'
+
         ])
+        ->whereHas('clients', function ($query) {
+
+            $query->whereDoesntHave('cars', function ($q) {
+
+                $q->whereNotIn('status', [
+                    CarStatus::COMPLETED,
+                    CarStatus::CANCELLED
+                ]);
+
+            })
+            ->whereHas('cars');
+
+        })
         ->orderByDesc('updated_at')
         ->get();
 
 
+
         return view('clients.index', compact(
             'clients',
-            'dealers'
+            'dealers',
+            'archiveClients',
+            'archiveDealers'
         ));
     }
 
-    public function show($type, $id)
+    public function show(string $type, int $id)
     {
-        
-        if ($type === 'client') {
+        $contact = match ($type) {
+            'client' => Client::with(['dealer', 'cars'])->findOrFail($id),
+            'dealer' => Dealer::with(['clients.cars'])->findOrFail($id),
+            default => abort(404),
+        };
 
-            $contact = Client::with([
-                'dealer',
-                'cars'
-            ])->findOrFail($id);
-
-
-        } elseif ($type === 'dealer') {
-
-            $contact = Dealer::with([
-                'clients.cars'
-            ])->findOrFail($id);
-
-
-        } else {
-
-            abort(404);
-
-        }
-
-
-        return view('clients.show', compact(
-            'contact',
-            'type'
-        ));
+        return view('clients.show', compact('contact', 'type'));
     }
 
     public function create(Request $request)
@@ -108,5 +196,23 @@ class ClientController extends Controller
         $dealer->save();
 
         return redirect()->route('clients.index')->with('success', 'Дилер успешно создан.');
+    }
+
+    public function destroy(Client $client)
+    {
+        foreach ($client->cars as $car) {
+            /*
+            $car->photos()->delete();
+            $car->documents()->delete();
+            $car->tasks()->delete();
+        */
+            $car->delete();
+        }
+
+        $client->delete();
+
+        return redirect()
+            ->route('clients.index')
+            ->with('success', 'Клиент удалён.');
     }
 }

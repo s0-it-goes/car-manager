@@ -5,6 +5,7 @@
 
 @section('content')
 
+
 <div class="flex justify-between items-center mb-6">
 
     <h1 class="text-3xl font-bold text-gray-800">
@@ -13,193 +14,517 @@
 
 
     <a href="{{ route('clients.create.type') }}"
-        class="px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition">
-            Добавить
+       class="px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition">
+
+        Добавить
+
     </a>
 
 </div>
 
 
-<div class="bg-white rounded-lg shadow overflow-hidden"
-     x-data="{ openDealer: null }">
 
+<div x-data="{ tab: 'active', openDealer: null, openArchiveDealer: null }">
 
-    <table class="w-full">
 
-        <thead class="bg-gray-900 text-white">
+    {{-- Вкладки --}}
 
-            <tr>
-                <th class="px-6 py-3 text-left">
-                    Имя
-                </th>
+    <div class="flex gap-3 mb-5">
 
-                <th class="px-6 py-3 text-left">
-                    Телефон
-                </th>
+        <button
+            @click="tab='active'"
+            class="px-5 py-2 rounded-lg transition"
+            :class="tab === 'active'
+                ? 'bg-gray-900 text-white'
+                : 'bg-gray-200 text-gray-800'">
 
-                <th class="px-6 py-3 text-left">
-                    Количество активных заказов
-                </th>
+            Активные
 
-                <th class="px-6 py-3 text-left">
-                    Последнее изменение
-                </th>
+        </button>
 
-            </tr>
 
-        </thead>
+        <button
+            @click="tab='archive'"
+            class="px-5 py-2 rounded-lg transition"
+            :class="tab === 'archive'
+                ? 'bg-gray-900 text-white'
+                : 'bg-gray-200 text-gray-800'">
 
+            Архив
 
+        </button>
 
-        <tbody>
 
+    </div>
 
-{{-- Дилеры --}}
 
-@foreach($dealers as $dealer)
 
-<tr class="bg-gray-200 border-b cursor-pointer hover:bg-gray-300 transition"
-    @click="openDealer === {{ $dealer->id }} ? openDealer = null : openDealer = {{ $dealer->id }}">
 
-    <td colspan="4"
-        class="px-6 py-3 font-bold text-gray-800">
 
-        <span
-            class="inline-flex items-center justify-center w-6 h-6 mr-2 rounded-full bg-gray-300 relative top-[2px] transition-transform duration-200"
-            :class="openDealer === {{ $dealer->id }} ? 'rotate-90' : ''">
+{{-- ================= АКТИВНЫЕ ================= --}}
 
-            <svg
-                class="w-4 h-4 text-gray-700"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
 
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 5l7 7-7 7"/>
+    <div x-show="tab === 'active'"
+        class="bg-white rounded-lg shadow overflow-hidden">
 
-            </svg>
 
-        </span>
+        <table class="w-full">
 
-        {{ $dealer->full_name }}
 
-        <span class="text-sm text-gray-500 ml-2">
-            ({{ $dealer->clients->count() }} клиентов)
-        </span>
+            <thead class="bg-gray-900 text-white">
 
-    </td>
+                <tr>
 
-</tr>
+                    <th class="px-6 py-3 text-left">
+                        Имя
+                    </th>
 
 
-@foreach($dealer->clients as $client)
+                    <th class="px-6 py-3 text-left">
+                        Телефон
+                    </th>
 
-<tr x-show="openDealer === {{ $dealer->id }}"
-    x-transition
-    class="border-b hover:bg-gray-100 transition">
 
+                    <th class="px-6 py-3 text-left">
+                        Активные заказы
+                    </th>
 
-    <td class="px-6 py-4 pl-12 font-medium">
 
-        {{ $client->full_name }}
+                    <th class="px-6 py-3 text-left">
+                        Последнее изменение
+                    </th>
 
-    </td>
 
+                </tr>
 
-    <td class="px-6 py-4">
+            </thead>
 
-        {{ $client->phone ?? '—' }}
 
-    </td>
 
+            <tbody>
 
-    <td class="px-6 py-4">
+                {{-- ================= КЛИЕНТЫ БЕЗ ДИЛЕРА ================= --}}
 
-        {{ $client->cars->count() }}
+                @if($clients->isNotEmpty())
 
-    </td>
+                    <tr class="bg-gray-200 border-b">
 
+                        <td colspan="4"
+                            class="px-6 py-3 font-bold text-gray-800">
 
-    <td class="px-6 py-4">
+                            Мои клиенты
 
-        {{ $client->updated_at->format('d.m.Y H:i') }}
+                        </td>
 
-    </td>
+                    </tr>
 
 
-</tr>
+                    @foreach($clients as $client)
 
-@endforeach
+                        <tr
+                        onclick="window.location='{{ route('clients.show',
+                        ['type'=>'client','id'=>$client->id]) }}'"
+                        class="border-b hover:bg-gray-100 cursor-pointer ">
 
 
-@endforeach
+                            <td class="px-6 py-4 font-medium">
 
+                                {{ $client->full_name }}
 
-{{-- Обычные клиенты --}}
+                            </td>
 
-@foreach($clients as $client)
 
+                            <td class="px-6 py-4">
 
-<tr class="border-b hover:bg-gray-100 transition">
+                                {{ $client->phone ?? '—' }}
 
+                            </td>
 
-    <td class="px-6 py-4 font-medium">
 
-        {{ $client->full_name }}
+                            <td class="px-6 py-4">
 
-    </td>
+                                {{ $client->cars->count() }}
 
+                            </td>
 
-    <td class="px-6 py-4">
 
-        {{ $client->phone ?? '—' }}
+                            <td class="px-6 py-4">
 
-    </td>
+                                {{ $client->updated_at->format('d.m.Y H:i') }}
 
+                            </td>
 
-    <td class="px-6 py-4">
 
-        {{ $client->cars->count() }}
+                        </tr>
 
-    </td>
+                    @endforeach
 
+                @endif
 
-    <td class="px-6 py-4">
 
-        {{ $client->updated_at->format('d.m.Y H:i') }}
 
-    </td>
+                {{-- ================= КЛИЕНТЫ ДИЛЕРОВ ================= --}}
 
+                @if($dealers->isNotEmpty())
 
-</tr>
+                    @foreach($dealers as $dealer)
 
 
-@endforeach
+                        <tr
+                        class="bg-gray-100 border-b cursor-pointer hover:bg-gray-200 transition"
 
+                        @click="openDealer === {{ $dealer->id }}
+                            ? openDealer = null
+                            : openDealer = {{ $dealer->id }}">
 
-@if($clients->isEmpty() && $dealers->isEmpty())
 
-<tr>
+                            <td colspan="4"
+                                class="px-6 py-3 font-bold">
 
-<td colspan="4"
-    class="px-6 py-6 text-center text-gray-500">
+                                <span
+                                class="inline-flex items-center justify-center w-6 h-6 mr-2 rounded-full bg-gray-300 transition-transform"
+                                :class="openDealer === {{ $dealer->id }} ? 'rotate-90' : ''">
 
-    Клиентов пока нет
 
-</td>
+                                <svg class="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
 
-</tr>
+                                <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 5l7 7-7 7"/>
 
-@endif
+                                </svg>
 
 
-</tbody>
+                                </span>
 
 
-    </table>
+                                {{ $dealer->full_name }}
+
+
+                                <span class="text-sm text-gray-500 ml-2">
+
+                                ({{ $dealer->clients->count() }} клиентов)
+
+                                </span>
+
+
+                            </td>
+
+
+                        </tr>
+
+
+
+
+                        @foreach($dealer->clients as $client)
+
+
+                        <tr
+                        x-show="openDealer === {{ $dealer->id }}"
+                        x-transition
+                        onclick="window.location='{{ route('clients.show',
+                        ['type'=>'client','id'=>$client->id]) }}'"
+                        class="border-b hover:bg-gray-100 cursor-pointer">
+
+
+                        <td class="px-6 py-4 pl-12 font-medium">
+
+                        {{ $client->full_name }}
+
+                        </td>
+
+
+                        <td class="px-6 py-4">
+
+                        {{ $client->phone ?? '—' }}
+
+                        </td>
+
+
+                        <td class="px-6 py-4">
+
+                        {{ $client->cars->count() }}
+
+                        </td>
+
+
+                        <td class="px-6 py-4">
+
+                        {{ $client->updated_at->format('d.m.Y H:i') }}
+
+                        </td>
+
+
+                        </tr>
+
+
+                        @endforeach
+
+
+                    @endforeach
+
+                @endif
+
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+    {{-- ================= АРХИВ ================= --}}
+
+    <div x-show="tab === 'archive'"
+        class="bg-white rounded-lg shadow overflow-hidden">
+
+
+        <table class="w-full">
+
+
+            <thead class="bg-gray-900 text-white">
+
+                <tr>
+
+                    <th class="px-6 py-3 text-left">
+                        Имя
+                    </th>
+
+
+                    <th class="px-6 py-3 text-left">
+                        Телефон
+                    </th>
+
+
+                    <th class="px-6 py-3 text-left">
+                        Всего заказов
+                    </th>
+
+
+                    <th class="px-6 py-3 text-left">
+                        Последнее изменение
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+
+            <tbody>
+
+
+                @if($archiveDealers->isNotEmpty())
+
+
+                {{-- Клиенты дилеров в архиве --}}
+
+                    @foreach($archiveDealers as $dealer)
+
+
+                        <tr
+                        class="bg-gray-200 border-b cursor-pointer hover:bg-gray-300 transition"
+
+                        @click="openArchiveDealer === {{ $dealer->id }}
+                            ? openArchiveDealer = null
+                            : openArchiveDealer = {{ $dealer->id }}">
+
+
+                            <td colspan="4"
+                                class="px-6 py-3 font-bold text-gray-800">
+
+
+                                <span
+                                class="inline-flex items-center justify-center w-6 h-6 mr-2 rounded-full bg-gray-300 transition-transform"
+
+                                :class="openArchiveDealer === {{ $dealer->id }} ? 'rotate-90' : ''">
+
+
+                                <svg
+                                class="w-4 h-4 text-gray-700"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
+
+
+                                <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 5l7 7-7 7"/>
+
+
+                                </svg>
+
+                                </span>
+
+                                {{ $dealer->full_name }}
+
+                                <span class="text-sm text-gray-500 ml-2">
+                                    ({{ $dealer->clients->count() }} клиентов)
+                                </span>
+
+
+                            </td>
+
+
+                        </tr>
+
+
+                        @foreach($dealer->clients as $client)
+
+                            <tr
+
+                            x-show="openArchiveDealer === {{ $dealer->id }}"
+
+                            x-transition
+
+                            onclick="window.location='{{ route('clients.show',
+                            ['type'=>'client','id'=>$client->id]) }}'"
+
+                            class="border-b hover:bg-gray-100 cursor-pointer">
+
+
+                                <td class="px-6 py-4 pl-12 font-medium">
+
+                                {{ $client->full_name }}
+
+                                </td>
+
+
+
+                                <td class="px-6 py-4">
+
+                                {{ $client->phone ?? '—' }}
+
+                                </td>
+
+
+
+                                <td class="px-6 py-4">
+
+                                {{ $client->cars->count() }}
+
+                                </td>
+
+
+
+                                <td class="px-6 py-4">
+
+                                {{ $client->updated_at->format('d.m.Y H:i') }}
+
+                                </td>
+
+
+                            </tr>
+
+
+                        @endforeach
+
+
+                    @endforeach
+
+
+                @endif
+
+
+                {{-- Клиенты без дилера --}}
+
+
+                @if($archiveClients->isNotEmpty())
+
+
+                    <tr class="bg-gray-200 border-b">
+
+                        <td colspan="4"
+                            class="px-6 py-3 font-bold text-gray-800">
+
+                            Мои клиенты
+
+                        </td>
+
+                    </tr>
+
+                    @foreach($archiveClients as $client)
+
+
+                        <tr
+                        onclick="window.location='{{ route('clients.show',
+                        ['type'=>'client','id'=>$client->id]) }}'"
+                        class="border-b hover:bg-gray-100 cursor-pointer">
+
+
+                            <td class="px-6 py-4 font-medium">
+
+                                {{ $client->full_name }}
+
+                            </td>
+
+
+                            <td class="px-6 py-4">
+
+                                {{ $client->phone ?? '—' }}
+
+                            </td>
+
+
+                            <td class="px-6 py-4">
+
+                                {{ $client->cars->count() }}
+
+                            </td>
+
+
+                            <td class="px-6 py-4">
+
+                                {{ $client->updated_at->format('d.m.Y H:i') }}
+
+                            </td>
+
+
+                        </tr>
+
+
+                    @endforeach
+
+                @endif
+
+
+                @if($archiveClients->isEmpty() && $archiveDealers->isEmpty())
+
+
+                    <tr>
+
+                    <td colspan="4"
+                        class="px-6 py-6 text-center text-gray-500">
+
+                        Архив пуст
+
+                    </td>
+
+                    </tr>
+
+
+                @endif
+
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
 
 
 </div>

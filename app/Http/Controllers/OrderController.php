@@ -16,17 +16,25 @@ class OrderController extends Controller
         $clients = Client::with([
             'dealer',
             'cars' => function ($query) {
-                $query->orderByDesc('updated_at');
+                $query->whereNotIn('status', [
+                    CarStatus::COMPLETED, 
+                    CarStatus::CANCELLED
+                    ])->orderByDesc('updated_at');
             }
-        ])
-        ->whereHas('cars')
+        ])->whereHas('cars', function ($query) {
+
+            $query->whereNotIn('status', [
+                CarStatus::COMPLETED,
+                CarStatus::CANCELLED
+            ]);
+
+        })
         ->whereNull('dealer_id')
         ->orderByDesc('updated_at')
         ->get();
 
-
         $dealers = Dealer::with([
-            'clients' => function($query){
+            'clients' => function ($query) {
 
                 $query->orderBy('full_name');
 
@@ -34,12 +42,23 @@ class OrderController extends Controller
 
             'clients.cars' => function ($query) {
 
-                $query->orderByDesc('updated_at');
+                $query->whereNotIn('status', [
+                    CarStatus::COMPLETED,
+                    CarStatus::CANCELLED
+                ])
+                ->orderByDesc('updated_at');
 
             }
 
         ])
-        ->whereHas('clients.cars')
+        ->whereHas('clients.cars', function ($query) {
+
+            $query->whereNotIn('status', [
+                CarStatus::COMPLETED,
+                CarStatus::CANCELLED
+            ]);
+
+        })
         ->orderBy('full_name')
         ->get();
 
@@ -73,6 +92,7 @@ class OrderController extends Controller
             'client_name' => 'nullable|required_without:client_id|string|max:255',
             'client_phone' => 'nullable|string|max:20',
             'dealer_id' => 'nullable|exists:dealers,id',
+            'client_notes' => 'nullable|string',
 
             // Заказ
             'country' => 'required|in:Japan,Korea,China',
@@ -109,6 +129,7 @@ class OrderController extends Controller
                 'full_name' => $request->client_name,
                 'phone' => $request->client_phone,
                 'dealer_id' => $request->dealer_id,
+                'notes' => $request->client_notes,
 
             ]);
 
@@ -189,6 +210,18 @@ class OrderController extends Controller
         return redirect()
             ->route('orders.show', $car)
             ->with('success', 'Заказ успешно обновлен.');
+    }
+
+    public function destroy(Car $car)
+    {
+        $car->photos()->delete();
+        $car->documents()->delete();
+
+        $car->delete();
+
+        return redirect()
+            ->route('orders.index')
+            ->with('success', 'Заказ успешно удален');
     }
 
 }

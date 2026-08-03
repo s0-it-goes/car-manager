@@ -88,7 +88,7 @@
                     </span>
 
 
-                    <a href="{{ route('contacts.show', ['type'=>'dealer', 'id'=>$contact->dealer->id]) }}"
+                    <a href="{{ route('clients.show', ['type'=>'dealer', 'id'=>$contact->dealer->id]) }}"
                        class="text-blue-600 hover:underline">
 
                         {{ $contact->dealer->full_name }}
@@ -152,14 +152,30 @@
             </div>
 
         @endif
+        
+        @if($type === 'client')
 
+            <form action="{{ route('clients.destroy', $contact->id) }}"
+                method="POST"
+                onsubmit="return confirm('Удалить клиента и все его машины?')">
+
+                @csrf
+                @method('DELETE')
+
+                <button
+                    type="submit"
+                    class="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                    Удалить клиента и его заказы
+                </button>
+
+            </form>
+
+        @endif
 
     </div>
 
 
 </div>
-
-
 
 
 @if($type === 'dealer')
@@ -212,19 +228,14 @@
         @forelse($contact->clients as $client)
 
 
-            <tr class="border-b hover:bg-gray-100 transition">
+            <tr
+            onclick="window.location='{{ route('clients.show', ['type' => 'client', 'id' => $client->id]) }}'"
+            class="border-b hover:bg-gray-100 transition cursor-pointer">
 
 
                 <td class="px-6 py-4 font-medium">
 
-
-                    <a href="{{ route('contacts.show', ['type'=>'client', 'id'=>$client->id]) }}"
-                       class="hover:underline">
-
-                        {{ $client->full_name }}
-
-                    </a>
-
+                    {{ $client->full_name }}
 
                 </td>
 
@@ -325,7 +336,9 @@
         @forelse($contact->cars as $car)
 
 
-            <tr class="border-b hover:bg-gray-100 transition">
+            <tr
+                onclick="window.location='{{ route('orders.show', $car) }}'"
+                class="border-b hover:bg-gray-100 transition cursor-pointer">
 
 
                 <td class="px-6 py-4 font-medium">

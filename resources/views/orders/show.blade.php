@@ -81,7 +81,12 @@
 
                         <div class="font-medium">
 
-                            {{ $car->client->full_name }}
+                            <a href="{{ route('clients.show', ['type' => 'client', 'id' => $car->client->id]) }}"
+                               class="text-blue-600 hover:underline">
+
+                                {{ $car->client->full_name }}
+
+                            </a>
 
                         </div>
 
@@ -104,115 +109,139 @@
                 </div>
 
             </div>
+            <div class="bg-white rounded-lg shadow mb-6">
+
+                {{-- Автомобиль --}}
+
                 <div class="bg-white rounded-lg shadow mb-6">
 
-                <div class="border-b px-6 py-4">
+                    <div class="border-b px-6 py-4">
 
-                    <h2 class="text-xl font-semibold">
-
-                        Автомобиль
-
-                    </h2>
-
-                </div>
-
-                <div class="p-6 grid grid-cols-2 gap-6">
-
-                    <div>
-
-                        <label class="block text-sm font-medium mb-2">
-
-                            Страна
-
-                        </label>
-
-                        <select
-                            name="country"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2">
-
-                            @foreach($countries as $country)
-
-                                <option
-                                    value="{{ $country->value }}"
-                                    @selected(old('country', $car->country->value) == $country->value)>
-
-                                    {{ $country->label() }}
-
-                                </option>
-
-                            @endforeach
-
-                        </select>
+                        <h2 class="text-xl font-semibold">
+                            Автомобиль
+                        </h2>
 
                     </div>
 
-                    <div>
 
-                        <label class="block text-sm font-medium mb-2">
+                    <div class="p-6 space-y-5">
 
-                            Марка
 
-                        </label>
+                        {{-- Страна --}}
 
-                        <input
-                            type="text"
-                            name="brand"
-                            value="{{ old('brand', $car->brand) }}"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2">
+                        <div>
+
+                            <label class="block text-sm font-medium mb-2">
+                                Страна
+                            </label>
+
+
+                            <select
+                                name="country"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2">
+
+
+                                @foreach($countries as $country)
+
+                                    <option
+                                        value="{{ $country->value }}"
+                                        @selected(old('country', $car->country->value) == $country->value)>
+
+                                        {{ $country->label() }}
+
+                                    </option>
+
+                                @endforeach
+
+
+                            </select>
+
+                        </div>
+
+
+
+                        {{-- Марка --}}
+
+                        <div>
+
+                            <label class="block text-sm font-medium mb-2">
+                                Марка
+                            </label>
+
+
+                            <input
+                                type="text"
+                                name="brand"
+                                value="{{ old('brand', $car->brand) }}"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2">
+
+                        </div>
+
+
+
+                        {{-- Модель --}}
+
+                        <div>
+
+                            <label class="block text-sm font-medium mb-2">
+                                Модель
+                            </label>
+
+
+                            <input
+                                type="text"
+                                name="model"
+                                value="{{ old('model', $car->model) }}"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2">
+
+                        </div>
+
+
+
+                        {{-- Год --}}
+
+                        <div>
+
+                            <label class="block text-sm font-medium mb-2">
+                                Год
+                            </label>
+
+
+                            <input
+                                type="number"
+                                name="year"
+                                value="{{ old('year', $car->year) }}"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2">
+
+                        </div>
+
+
+
+                        {{-- Номер кузова --}}
+
+                        <div>
+
+                            <label class="block text-sm font-medium mb-2">
+                                Номер кузова
+                            </label>
+
+
+                            <input
+                                type="text"
+                                name="chassis_number"
+                                value="{{ old('chassis_number', $car->chassis_number) }}"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2">
+
+                        </div>
+
 
                     </div>
 
-                    <div>
-
-                        <label class="block text-sm font-medium mb-2">
-
-                            Модель
-
-                        </label>
-
-                        <input
-                            type="text"
-                            name="model"
-                            value="{{ old('model', $car->model) }}"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2">
-
-                    </div>
-
-                    <div>
-
-                        <label class="block text-sm font-medium mb-2">
-
-                            Год
-
-                        </label>
-
-                        <input
-                            type="number"
-                            name="year"
-                            value="{{ old('year', $car->year) }}"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2">
-
-                    </div>
-
-                    <div class="col-span-2">
-
-                        <label class="block text-sm font-medium mb-2">
-
-                            Номер кузова
-
-                        </label>
-
-                        <input
-                            type="text"
-                            name="chassis_number"
-                            value="{{ old('chassis_number', $car->chassis_number) }}"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2">
-
-                    </div>
 
                 </div>
 
             </div>
+
                 {{-- Финансы --}}
 
             <div class="bg-white rounded-lg shadow mb-6">
@@ -475,6 +504,30 @@
 
         </form>
     </div>
+</div>
+
+
+{{-- Удаление заказа --}}
+
+<div class="flex justify-center mb-10">
+
+    <form action="{{ route('orders.destroy', $car) }}"
+          method="POST"
+          onsubmit="return confirm('Вы действительно хотите удалить этот заказ? Все данные автомобиля будут удалены.')">
+
+        @csrf
+        @method('DELETE')
+
+        <button
+            type="submit"
+            class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+
+            Удалить заказ
+
+        </button>
+
+    </form>
+
 </div>
 
 @endsection

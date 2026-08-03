@@ -132,6 +132,35 @@
 
                         </div>
 
+                        <div class="mt-4">
+
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Перекуп
+                            </label>
+
+                            <select
+                                name="dealer_id"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none">
+
+                                <option value="">
+                                    Нет
+                                </option>
+
+                                @foreach($dealers as $dealer)
+
+                                    <option value="{{ $dealer->id }}"
+                                        {{ old('dealer_id') == $dealer->id ? 'selected' : '' }}>
+
+                                        {{ $dealer->full_name }}
+
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                        </div>
+
                     </div>
 
                     <!-- Страна -->
