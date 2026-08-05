@@ -416,13 +416,7 @@
             </div>
 
 
-
-
-
-
-
             {{-- Заметки --}}
-
 
 
             <div class="bg-white rounded-lg shadow mb-6">
@@ -465,45 +459,274 @@
 
 
 
+{{-- Кнопки --}}
 
-            {{-- Кнопки --}}
+<div class="flex justify-center gap-4 mb-10">
 
+    <button
+        type="submit"
+        class="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition">
 
+        Сохранить
 
-            <div class="flex justify-center gap-4 mb-10">
-
-
-
-                <button
-                    type="submit"
-                    class="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition">
-
-
-                    Сохранить
+    </button>
 
 
-                </button>
+    <a href="{{ route('orders.index') }}"
+       class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400 transition">
+
+        Отмена
+
+    </a>
+
+</div>
+
+
+</form>
+{{-- ВАЖНО: здесь закрылась форма обновления заказа --}}
 
 
 
 
-                <a href="{{ route('orders.index') }}"
-                class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400 transition">
+
+{{-- Фото --}}
+
+<div class="bg-white rounded-lg shadow mb-6">
 
 
-                    Отмена
+    <div class="border-b px-6 py-4 flex justify-between items-center">
+
+        <h2 class="text-xl font-semibold">
+            Фотографии
+        </h2>
+
+        <span class="text-sm text-gray-500">
+            {{ $car->photos->count() }} шт.
+        </span>
+
+    </div>
 
 
-                </a>
 
+    <div class="p-6">
+
+
+        <form
+    action="{{ route('orders.photos.upload', $car) }}"
+    method="POST"
+    enctype="multipart/form-data">
+
+    @csrf
+
+    <input type="file" name="photos[]">
+
+    <button>
+        Отправить
+    </button>
+
+</form>
+
+
+        {{-- Галерея --}}
+
+
+        @if($car->photos->count())
+
+
+            <div class="grid grid-cols-3 gap-4 mt-8">
+
+
+                @foreach($car->photos as $photo)
+
+
+                    <div class="relative group">
+
+
+                        <img
+                            src="{{ asset('storage/'.$photo->path) }}"
+                            class="w-full h-40 object-cover rounded-lg border">
+
+
+                        <form
+                            action="{{ route('photos.delete', $photo) }}"
+                            method="POST"
+                            class="absolute top-2 right-2 hidden group-hover:block"
+                            onsubmit="console.log('submit')">
+
+
+                            @csrf
+                            @method('DELETE')
+
+
+                            <button
+                                type="submit"
+                                class="bg-red-600 text-white rounded-full w-8 h-8 hover:bg-red-700">
+
+                                ×
+
+                            </button>
+
+
+                        </form>
+
+
+                    </div>
+
+
+                @endforeach
 
 
             </div>
 
 
+        @else
+
+
+            <p class="text-gray-500 text-center mt-6">
+                Фотографий пока нет
+            </p>
+
+
+        @endif
+
+
+    </div>
+
+
+</div>
+
+
+
+
+
+{{-- Документы --}}
+
+
+<div class="bg-white rounded-lg shadow mb-6">
+
+
+    <div class="border-b px-6 py-4 flex justify-between items-center">
+
+
+        <h2 class="text-xl font-semibold">
+            Документы
+        </h2>
+
+
+        <span class="text-sm text-gray-500">
+            {{ $car->documents->count() }} шт.
+        </span>
+
+
+    </div>
+
+
+
+    <div class="p-6">
+
+
+        <form
+            action="{{ route('orders.documents.upload', $car) }}"
+            method="POST"
+            enctype="multipart/form-data">
+
+
+            @csrf
+
+
+            <label class="block text-sm font-medium mb-2">
+                Добавить документы
+            </label>
+
+
+            <input
+                type="file"
+                name="documents[]"
+                multiple
+                class="block w-full border rounded-lg p-2 mb-4">
+
+
+            <button
+                type="submit"
+                class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+
+                Загрузить документы
+
+            </button>
+
 
         </form>
+
+
+
+        @if($car->documents->count())
+
+
+            <div class="mt-6 space-y-3">
+
+
+                @foreach($car->documents as $document)
+
+
+                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+
+
+                        <a
+                            href="{{ asset('storage/'.$document->path) }}"
+                            target="_blank"
+                            class="text-blue-600 hover:underline">
+
+                            {{ $document->name }}
+
+                        </a>
+
+
+
+                        <form
+                            action="{{ route('documents.delete', $document) }}"
+                            method="POST">
+
+
+                            @csrf
+                            @method('DELETE')
+
+
+                            <button
+                                type="submit"
+                                class="text-red-600 hover:text-red-800">
+
+                                Удалить
+
+                            </button>
+
+
+                        </form>
+
+
+                    </div>
+
+
+                @endforeach
+
+
+            </div>
+
+
+        @else
+
+
+            <p class="text-gray-500 text-center mt-6">
+                Документов пока нет
+            </p>
+
+
+        @endif
+
+
+        </div>
+
     </div>
+
 </div>
 
 

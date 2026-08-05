@@ -33,7 +33,7 @@
 
         <button
             @click="tab='active'"
-            class="px-5 py-2 rounded-lg transition"
+            class="px-5 py-2 rounded-lg transition cursor-pointer"
             :class="tab === 'active'
                 ? 'bg-gray-900 text-white'
                 : 'bg-gray-200 text-gray-800'">
@@ -45,7 +45,7 @@
 
         <button
             @click="tab='archive'"
-            class="px-5 py-2 rounded-lg transition"
+            class="px-5 py-2 rounded-lg transition cursor-pointer"
             :class="tab === 'archive'
                 ? 'bg-gray-900 text-white'
                 : 'bg-gray-200 text-gray-800'">
@@ -98,7 +98,6 @@
                 </tr>
 
             </thead>
-
 
 
             <tbody>
@@ -185,20 +184,18 @@
                                 class="inline-flex items-center justify-center w-6 h-6 mr-2 rounded-full bg-gray-300 transition-transform"
                                 :class="openDealer === {{ $dealer->id }} ? 'rotate-90' : ''">
 
+                                    <svg class="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24">
 
-                                <svg class="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24">
+                                    <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 5l7 7-7 7"/>
 
-                                <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9 5l7 7-7 7"/>
-
-                                </svg>
-
+                                    </svg>
 
                                 </span>
 
@@ -206,77 +203,61 @@
                                 {{ $dealer->full_name }}
 
 
-                                <span class="text-sm text-gray-500 ml-2">
-
-                                ({{ $dealer->clients->count() }} клиентов)
-
-                                </span>
-
-
                             </td>
 
 
                         </tr>
 
-
-
-
                         @foreach($dealer->clients as $client)
 
-
-                        <tr
-                        x-show="openDealer === {{ $dealer->id }}"
-                        x-transition
-                        onclick="window.location='{{ route('clients.show',
-                        ['type'=>'client','id'=>$client->id]) }}'"
-                        class="border-b hover:bg-gray-100 cursor-pointer">
-
-
-                        <td class="px-6 py-4 pl-12 font-medium">
-
-                        {{ $client->full_name }}
-
-                        </td>
+                            <tr
+                            x-show="openDealer === {{ $dealer->id }}"
+                            x-transition
+                            onclick="window.location='{{ route('clients.show',
+                            ['type'=>'client','id'=>$client->id]) }}'"
+                            class="border-b hover:bg-gray-100 cursor-pointer">
 
 
-                        <td class="px-6 py-4">
+                                <td class="px-6 py-4 pl-12 font-medium">
 
-                        {{ $client->phone ?? '—' }}
+                                {{ $client->full_name }}
 
-                        </td>
-
-
-                        <td class="px-6 py-4">
-
-                        {{ $client->cars->count() }}
-
-                        </td>
+                                </td>
 
 
-                        <td class="px-6 py-4">
+                                <td class="px-6 py-4">
 
-                        {{ $client->updated_at->format('d.m.Y H:i') }}
+                                {{ $client->phone ?? '—' }}
 
-                        </td>
+                                </td>
 
 
-                        </tr>
+                                <td class="px-6 py-4">
+
+                                {{ $client->cars->count() }}
+
+                                </td>
+
+
+                                <td class="px-6 py-4">
+
+                                {{ $client->updated_at->format('d.m.Y H:i') }}
+
+                                </td>
+
+
+                            </tr>
 
 
                         @endforeach
-
 
                     @endforeach
 
                 @endif
 
-
-
             </tbody>
 
-
         </table>
-
 
     </div>
 
@@ -286,9 +267,7 @@
     <div x-show="tab === 'archive'"
         class="bg-white rounded-lg shadow overflow-hidden">
 
-
         <table class="w-full">
-
 
             <thead class="bg-gray-900 text-white">
 
@@ -318,7 +297,6 @@
             </thead>
 
 
-
             <tbody>
 
 
@@ -341,37 +319,28 @@
                             <td colspan="4"
                                 class="px-6 py-3 font-bold text-gray-800">
 
-
                                 <span
                                 class="inline-flex items-center justify-center w-6 h-6 mr-2 rounded-full bg-gray-300 transition-transform"
 
                                 :class="openArchiveDealer === {{ $dealer->id }} ? 'rotate-90' : ''">
 
+                                    <svg
+                                    class="w-4 h-4 text-gray-700"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24">
 
-                                <svg
-                                class="w-4 h-4 text-gray-700"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24">
+                                        <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M9 5l7 7-7 7"/>
 
-
-                                <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9 5l7 7-7 7"/>
-
-
-                                </svg>
+                                    </svg>
 
                                 </span>
 
                                 {{ $dealer->full_name }}
-
-                                <span class="text-sm text-gray-500 ml-2">
-                                    ({{ $dealer->clients->count() }} клиентов)
-                                </span>
-
 
                             </td>
 
@@ -503,12 +472,12 @@
 
                     <tr>
 
-                    <td colspan="4"
-                        class="px-6 py-6 text-center text-gray-500">
+                        <td colspan="4"
+                            class="px-6 py-6 text-center text-gray-500">
 
-                        Архив пуст
+                            Архив пуст
 
-                    </td>
+                        </td>
 
                     </tr>
 

@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Dealer;
 use Illuminate\Http\Request;
 use App\Enums\CarStatus;
+use Illuminate\Support\Facades\DB;
 
 class ClientController extends Controller
 {
@@ -151,6 +152,58 @@ class ClientController extends Controller
         return view('clients.show', compact('contact', 'type'));
     }
 
+    public function edit(string $type, int $id)
+    {
+        if ($type === 'client') {
+            $contact = Client::findOrFail($id);
+            $dealers = Dealer::orderBy('full_name')->get();
+        } else {
+            $contact = Dealer::findOrFail($id);
+            $dealers = collect();
+        }
+
+        return view('clients.edit', compact(
+            'contact',
+            'type',
+            'dealers'
+        ));
+    }
+
+    public function update(Request $request, string $type, int $id)
+    {
+        if ($type === 'client') {
+
+            $client = Client::findOrFail($id);
+
+            $validated = $request->validate([
+                'full_name' => 'required|string|max:255',
+                'phone' => 'nullable|string|max:20',
+                'dealer_id' => 'nullable|exists:dealers,id',
+                'notes' => 'nullable|string',
+            ]);
+
+            $client->update($validated);
+
+        } else {
+
+            $dealer = Dealer::findOrFail($id);
+
+            $validated = $request->validate([
+                'full_name' => 'required|string|max:255',
+                'notes' => 'nullable|string',
+            ]);
+
+            $dealer->update($validated);
+        }
+
+        return redirect()
+            ->route('clients.show', [
+                'type' => $type,
+                'id' => $id,
+            ])
+            ->with('success', 'Данные успешно обновлены.');
+    }
+
     public function create(Request $request)
     {
 
@@ -214,5 +267,37 @@ class ClientController extends Controller
         return redirect()
             ->route('clients.index')
             ->with('success', 'Клиент удалён.');
+    }
+
+    public function destroyDealer(Dealer $dealer)
+    {
+        $dealer->load('clients');
+
+        DB::transaction(function () use ($dealer) {
+
+            foreach ($dealer->clients as $client) {
+
+                $note = sprintf(
+                    "[%s] Был клиентом перекупа: %s.",
+                    now()->format('d.m.Y H:i'),
+                    $dealer->full_name
+                );
+
+                $client->update([
+                    'dealer_id' => null,
+                    'notes' => $client->notes
+                        ? $client->notes . PHP_EOL . PHP_EOL . $note
+                        : $note,
+                ]);
+            }
+
+            $dealer->delete();
+
+        });
+
+
+        return redirect()
+            ->route('clients.index')
+            ->with('success', 'Перекуп удалён. Клиенты отвязаны.');
     }
 }

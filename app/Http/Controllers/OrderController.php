@@ -8,6 +8,10 @@ use App\Models\Car;
 use App\Models\Client;
 use App\Models\Dealer;
 use Illuminate\Http\Request;
+use App\Models\Photo;
+use App\Models\Document;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -167,7 +171,11 @@ class OrderController extends Controller
 
     public function show(Car $car)
     {
-        $car->load('client.dealer');
+        $car->load([
+            'client.dealer',
+            'photos',
+            'documents'
+        ]);
         
         return view('orders.show', [
             'car' => $car,
@@ -224,4 +232,67 @@ class OrderController extends Controller
             ->with('success', 'Заказ успешно удален');
     }
 
+   public function uploadPhotos(Request $request, Car $car)
+{
+    dd([
+        'content_length' => $_SERVER['CONTENT_LENGTH'] ?? null,
+        'files' => $_FILES,
+    ]);
+}
+    public function uploadDocuments(Request $request, Car $car)
+    {
+        $request->validate([
+            'documents.*' => [
+                'required',
+                'file',
+                'max:10240'
+            ],
+        ]);
+
+
+        foreach ($request->file('documents') as $document) {
+
+
+            $path = $document->store(
+                'cars/'.$car->id.'/documents',
+                'public'
+            );
+
+
+            $car->documents()->create([
+                'name' => $document->getClientOriginalName(),
+                'path' => $path,
+            ]);
+        }
+
+
+        return back()
+            ->with('success','Документы загружены.');
+    }
+
+    public function deletePhoto(Photo $photo)
+    {
+        Storage::disk('public')
+            ->delete($photo->path);
+
+
+        $photo->delete();
+
+
+        return back()
+            ->with('success','Фото удалено.');
+    }
+
+    public function deleteDocument(Document $document)
+    {
+        Storage::disk('public')
+            ->delete($document->path);
+
+
+        $document->delete();
+
+
+        return back()
+            ->with('success','Документ удален.');
+    }
 }

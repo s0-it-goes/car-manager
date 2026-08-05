@@ -153,25 +153,14 @@
 
         @endif
         
-        @if($type === 'client')
+        <div class="mt-5">
+            <a href="{{ route('clients.edit', ['type' => $type, 'id' => $contact->id]) }}"
+                class="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
 
-            <form action="{{ route('clients.destroy', $contact->id) }}"
-                method="POST"
-                onsubmit="return confirm('Удалить клиента и все его машины?')">
+                Изменить
 
-                @csrf
-                @method('DELETE')
-
-                <button
-                    type="submit"
-                    class="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-                    Удалить клиента и его заказы
-                </button>
-
-            </form>
-
-        @endif
-
+            </a>
+        </div>
     </div>
 
 

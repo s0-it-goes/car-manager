@@ -98,17 +98,8 @@
 
 
                     </span>
-
-
+                    
                     Перекуп: {{ $dealer->full_name }}
-
-
-                    <span class="text-sm text-gray-500 ml-2">
-
-                        ({{ $dealer->clients->count() }} клиентов)
-
-                    </span>
-
 
                 </td>
 
