@@ -208,9 +208,11 @@
 
 
                             <input
-                                type="number"
+                                type="text"
                                 name="year"
                                 value="{{ old('year', $car->year) }}"
+                                inputmode="numeric"
+                                pattern="[0-9]*"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2">
 
                         </div>
@@ -266,13 +268,14 @@
 
 
                     <input
-                        type="number"
+                        type="text"
                         name="buy_price"
                         value="{{ old('buy_price', $car->buy_price) }}"
                         placeholder="Введите стоимость"
-                        class="w-full rounded-lg border 
-                        border-gray-300 px-4 py-2 [&::-webkit-outer-spin-button]:appearance-none 
-                        [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]">
+                        inputmode="numeric"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2"
+                    >
+                        
 
 
                 </div>
@@ -491,107 +494,118 @@
 
 {{-- Фото --}}
 
-<div class="bg-white rounded-lg shadow mb-6">
-
+<div id="photos" class="bg-white rounded-lg shadow mb-6">
 
     <div class="border-b px-6 py-4 flex justify-between items-center">
-
         <h2 class="text-xl font-semibold">
             Фотографии
         </h2>
 
         <span class="text-sm text-gray-500">
-            {{ $car->photos->count() }} шт.
+            {{ $car->photos->count() }} фото
         </span>
-
     </div>
-
-
 
     <div class="p-6">
 
-
         <form
-    action="{{ route('orders.photos.upload', $car) }}"
-    method="POST"
-    enctype="multipart/form-data">
+            action="{{ route('orders.photos.upload', $car) }}"
+            method="POST"
+            enctype="multipart/form-data">
 
-    @csrf
+            @csrf
 
-    <input type="file" name="photos[]">
+            <label
+                class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-gray-50 transition">
 
-    <button>
-        Отправить
-    </button>
+                <svg class="w-10 h-10 text-gray-400 mb-3"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24">
 
-</form>
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 0l-3 3m3-3l3 3"/>
+                </svg>
 
+                <span class="text-gray-600">
+                    Выберите фотографии
+                </span>
 
-        {{-- Галерея --}}
+                <span class="text-xs text-gray-400 mt-1">
+                    JPG, PNG, WEBP • до 10 МБ
+                </span>
 
+                <input
+                    class="hidden"
+                    type="file"
+                    name="photos[]"
+                    multiple
+                    accept="image/*">
+            </label>
 
-        @if($car->photos->count())
+            <button
+                class="mt-4 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
 
+                Загрузить фотографии
 
-            <div class="grid grid-cols-3 gap-4 mt-8">
+            </button>
 
+        </form>
+
+        @if($car->photos->isNotEmpty())
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8">
 
                 @foreach($car->photos as $photo)
 
-
                     <div class="relative group">
 
+                        <a
+                            href="{{ asset('storage/'.$photo->path) }}"
+                            target="_blank">
 
-                        <img
-                            src="{{ asset('storage/'.$photo->path) }}"
-                            class="w-full h-40 object-cover rounded-lg border">
+                            <img
+                                src="{{ asset('storage/'.$photo->path) }}"
+                                class="w-full h-44 object-cover rounded-lg border shadow-sm hover:scale-[1.02] transition">
 
+                        </a>
 
                         <form
-                            action="{{ route('photos.delete', $photo) }}"
+                            action="{{ route('photos.delete',$photo) }}"
                             method="POST"
-                            class="absolute top-2 right-2 hidden group-hover:block"
-                            onsubmit="console.log('submit')">
-
+                            class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
 
                             @csrf
                             @method('DELETE')
 
-
                             <button
-                                type="submit"
-                                class="bg-red-600 text-white rounded-full w-8 h-8 hover:bg-red-700">
+                                class="w-8 h-8 rounded-full bg-red-600 text-white hover:bg-red-700">
 
                                 ×
 
                             </button>
 
-
                         </form>
-
 
                     </div>
 
-
                 @endforeach
-
 
             </div>
 
-
         @else
 
+            <div class="text-center py-10 text-gray-500">
 
-            <p class="text-gray-500 text-center mt-6">
                 Фотографий пока нет
-            </p>
 
+            </div>
 
         @endif
 
-
     </div>
-
 
 </div>
 
@@ -602,128 +616,145 @@
 {{-- Документы --}}
 
 
-<div class="bg-white rounded-lg shadow mb-6">
-
+<div id="documents" class="bg-white rounded-lg shadow mb-6">
 
     <div class="border-b px-6 py-4 flex justify-between items-center">
 
-
         <h2 class="text-xl font-semibold">
+
             Документы
+
         </h2>
 
-
         <span class="text-sm text-gray-500">
-            {{ $car->documents->count() }} шт.
-        </span>
 
+            {{ $car->documents->count() }} документов
+
+        </span>
 
     </div>
 
-
-
     <div class="p-6">
 
-
         <form
-            action="{{ route('orders.documents.upload', $car) }}"
+            action="{{ route('orders.documents.upload',$car) }}"
             method="POST"
             enctype="multipart/form-data">
 
-
             @csrf
 
+            <label
+                class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-green-500 hover:bg-gray-50 transition">
 
-            <label class="block text-sm font-medium mb-2">
-                Добавить документы
+                <svg
+                    class="w-10 h-10 text-gray-400 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M7 16V4h8l2 2v10m-5 4h0"/>
+
+                </svg>
+
+                <span>
+                    Выберите документы
+                </span>
+
+                <span class="text-xs text-gray-400 mt-1">
+                    до 20 МБ один файл
+                </span>
+
+                <input
+                    class="hidden"
+                    type="file"
+                    name="documents[]"
+                    multiple>
+
             </label>
 
-
-            <input
-                type="file"
-                name="documents[]"
-                multiple
-                class="block w-full border rounded-lg p-2 mb-4">
-
-
             <button
-                type="submit"
-                class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                class="mt-4 px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
 
                 Загрузить документы
 
             </button>
 
-
         </form>
 
+        @if($car->documents->isNotEmpty())
 
-
-        @if($car->documents->count())
-
-
-            <div class="mt-6 space-y-3">
-
+            <div class="mt-8 space-y-3">
 
                 @foreach($car->documents as $document)
 
+                    <div class="flex items-center justify-between rounded-lg border p-4">
 
-                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                        <div class="flex items-center gap-3">
 
+                            <svg
+                                class="w-8 h-8 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
 
-                        <a
-                            href="{{ asset('storage/'.$document->path) }}"
-                            target="_blank"
-                            class="text-blue-600 hover:underline">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 12h6m-6 4h6M9 8h6m-6 8h6M7 4h10l2 2v14H5V4z"/>
 
-                            {{ $document->name }}
+                            </svg>
 
-                        </a>
+                            <div>
 
+                                <a
+                                    href="{{ asset('storage/'.$document->path) }}"
+                                    target="_blank"
+                                    class="font-medium text-blue-600 hover:underline">
 
+                                    {{ $document->name }}
+
+                                </a>
+
+                            </div>
+
+                        </div>
 
                         <form
-                            action="{{ route('documents.delete', $document) }}"
+                            action="{{ route('documents.delete',$document) }}"
                             method="POST">
-
 
                             @csrf
                             @method('DELETE')
 
-
                             <button
-                                type="submit"
-                                class="text-red-600 hover:text-red-800">
+                                class="text-red-600 hover:text-red-700">
 
                                 Удалить
 
                             </button>
 
-
                         </form>
-
 
                     </div>
 
-
                 @endforeach
-
 
             </div>
 
-
         @else
 
+            <div class="text-center py-10 text-gray-500">
 
-            <p class="text-gray-500 text-center mt-6">
                 Документов пока нет
-            </p>
 
+            </div>
 
         @endif
-
-
-        </div>
 
     </div>
 

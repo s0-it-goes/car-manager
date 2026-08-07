@@ -222,77 +222,31 @@ class OrderController extends Controller
 
     public function destroy(Car $car)
     {
-        $car->photos()->delete();
-        $car->documents()->delete();
+        foreach ($car->photos as $photo) {
+
+            Storage::disk('public')
+                ->delete($photo->path);
+
+            $photo->delete();
+        }
+
+
+        foreach ($car->documents as $document) {
+
+            Storage::disk('public')
+                ->delete($document->path);
+
+            $document->delete();
+        }
+
 
         $car->delete();
+
 
         return redirect()
             ->route('orders.index')
             ->with('success', 'Заказ успешно удален');
     }
 
-   public function uploadPhotos(Request $request, Car $car)
-{
-    dd([
-        'content_length' => $_SERVER['CONTENT_LENGTH'] ?? null,
-        'files' => $_FILES,
-    ]);
-}
-    public function uploadDocuments(Request $request, Car $car)
-    {
-        $request->validate([
-            'documents.*' => [
-                'required',
-                'file',
-                'max:10240'
-            ],
-        ]);
-
-
-        foreach ($request->file('documents') as $document) {
-
-
-            $path = $document->store(
-                'cars/'.$car->id.'/documents',
-                'public'
-            );
-
-
-            $car->documents()->create([
-                'name' => $document->getClientOriginalName(),
-                'path' => $path,
-            ]);
-        }
-
-
-        return back()
-            ->with('success','Документы загружены.');
-    }
-
-    public function deletePhoto(Photo $photo)
-    {
-        Storage::disk('public')
-            ->delete($photo->path);
-
-
-        $photo->delete();
-
-
-        return back()
-            ->with('success','Фото удалено.');
-    }
-
-    public function deleteDocument(Document $document)
-    {
-        Storage::disk('public')
-            ->delete($document->path);
-
-
-        $document->delete();
-
-
-        return back()
-            ->with('success','Документ удален.');
-    }
+  
 }

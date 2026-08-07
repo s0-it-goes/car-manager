@@ -56,80 +56,80 @@
 
             @if($clients->count())
 
-            <tr class="bg-gray-200 border-b">
+                <tr class="bg-gray-200 border-b">
 
-                <td colspan="6"
-                    class="px-6 py-3 font-bold text-gray-800">
+                    <td colspan="6"
+                        class="px-6 py-3 font-bold text-gray-800">
 
-                    Мои клиенты
+                        Мои клиенты
 
-                </td>
+                    </td>
 
-            </tr>
-
-
-            @foreach($clients as $client)
-
-                @foreach($client->cars as $order)
-
-                    <tr
-                        onclick="window.location='{{ route('orders.show', $order) }}'"
-                        class="border-b hover:bg-gray-100 transition cursor-pointer">
+                </tr>
 
 
-                        <td class="px-6 py-4 font-medium pl-10">
+                @foreach($clients as $client)
 
-                            {{ $client->full_name }}
+                    @foreach($client->cars as $order)
 
-                        </td>
-
-
-                        <td class="px-6 py-4 font-medium">
-
-                            {{ trim(($order->brand ?? '') . ' ' . ($order->model ?? '')) ?: '—' }}
-
-                            @if($order->year)
-                                ({{ $order->year }})
-                            @endif
-
-                        </td>
+                        <tr
+                            onclick="window.location='{{ route('orders.show', $order) }}'"
+                            class="border-b hover:bg-gray-100 transition cursor-pointer">
 
 
-                        <td class="px-6 py-4">
+                            <td class="px-6 py-4 font-medium pl-10">
 
-                            {{ $order->country?->label() ?? '—' }}
+                                {{ $client->full_name }}
 
-                        </td>
-
-
-                        <td class="px-6 py-4 whitespace-nowrap">
-
-                            {{ $order->status?->label() ?? '—' }}
-
-                        </td>
+                            </td>
 
 
-                        <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 font-medium">
 
-                            {{ $order->buy_price 
-                                ? number_format($order->buy_price, 2, ',', ' ') . ' ₽'
-                                : '—' }}
+                                {{ trim(($order->brand ?? '') . ' ' . ($order->model ?? '')) ?: '—' }}
 
-                        </td>
+                                @if($order->year)
+                                    ({{ $order->year }})
+                                @endif
 
-
-                        <td class="px-6 py-4 whitespace-nowrap">
-
-                            {{ $order->updated_at->format('d.m.Y H:i') }}
-
-                        </td>
+                            </td>
 
 
-                    </tr>
+                            <td class="px-6 py-4">
+
+                                {{ $order->country?->label() ?? '—' }}
+
+                            </td>
+
+
+                            <td class="px-6 py-4 whitespace-nowrap">
+
+                                {{ $order->status?->label() ?? '—' }}
+
+                            </td>
+
+
+                            <td class="px-6 py-4 whitespace-nowrap">
+
+                                {{ $order->buy_price 
+                                    ? number_format($order->buy_price, 2, ',', ' ') . ' ₽'
+                                    : '—' }}
+
+                            </td>
+
+
+                            <td class="px-6 py-4 whitespace-nowrap">
+
+                                {{ $order->updated_at->format('d.m.Y H:i') }}
+
+                            </td>
+
+
+                        </tr>
+
+                    @endforeach
 
                 @endforeach
-
-            @endforeach
 
             @endif
 

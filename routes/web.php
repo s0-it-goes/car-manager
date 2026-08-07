@@ -5,22 +5,8 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\OrderController;
-use Illuminate\Http\Request;
-
-Route::post('/upload-test', function(Request $request){
-
-    file_put_contents(
-        storage_path('logs/request.log'),
-        json_encode([
-            'length' => request()->header('content-length'),
-            'files' => $request->allFiles(),
-            'all' => $request->all(),
-        ])
-    );
-
-    return 'ok';
-
-});
+use App\Http\Controllers\PhotoController;
+use App\Http\Controllers\DocumentController;
 
 // Гостевые маршруты (доступны только неавторизованным)
 Route::middleware('guest')->controller(AuthController::class)->group(function () {
@@ -75,17 +61,17 @@ Route::middleware('auth')->group(function () {
         ->name('orders.destroy');
 
     Route::post('/orders/{car}/photos',
-        [OrderController::class, 'uploadPhotos']
-        )->name('orders.photos.upload');
-    Route::post('/orders/{car}/documents',
-        [OrderController::class, 'uploadDocuments']
-        )->name('orders.documents.upload');
+        [PhotoController::class, 'store']
+    )->name('orders.photos.upload');
     Route::delete('/photos/{photo}',
-        [OrderController::class, 'deletePhoto']
-        )->name('photos.delete');
+        [PhotoController::class, 'destroy']
+    )->name('photos.delete');
+    Route::post('/orders/{car}/documents',
+        [DocumentController::class, 'store']
+    )->name('orders.documents.upload');
     Route::delete('/documents/{document}',
-        [OrderController::class, 'deleteDocument']
-        )->name('documents.delete');
+        [DocumentController::class, 'destroy']
+    )->name('documents.delete');
 
     Route::get('/archive', function () {
         return view('archive.index');
