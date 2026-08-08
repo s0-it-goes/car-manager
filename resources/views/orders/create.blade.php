@@ -251,12 +251,12 @@
 
 
                         <input
-                            id="year"
+                            type="text"
                             name="year"
-                            type="number"
                             value="{{ old('year') }}"
-                            placeholder="2020"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none">
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2">
 
 
                     </div>
@@ -293,13 +293,13 @@
                         </label>
 
                         <input
-                            id="buy_price"
+                            type="text"
                             name="buy_price"
-                            type="number"
-                            step="0.01"
                             value="{{ old('buy_price') }}"
-                            placeholder="1000000"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none">
+                            placeholder="Введите стоимость"
+                            inputmode="numeric"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2"
+                        >
 
                     </div>
 

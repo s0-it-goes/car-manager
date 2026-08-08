@@ -14,16 +14,29 @@ return new class extends Migration
         Schema::create('car_tasks', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('car_id')->constrained('cars')->cascadeOnDelete();
-            $table->string('task', 100);
+            $table->foreignId('car_id')
+                ->constrained('cars')
+                ->cascadeOnDelete();
+
+            $table->enum('task', [
+                'search_car',
+                'invoice',
+                'passport_copy',
+                'snils',
+                'inn',
+                'contract',
+                'import_explanation',
+            ]);
 
             $table->enum('status', [
                 'pending',
                 'completed',
-                'skipped'
+                'not_required',
             ])->default('pending');
 
             $table->timestamps();
+
+            $table->unique(['car_id', 'task']);
         });
     }
 

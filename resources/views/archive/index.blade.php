@@ -128,7 +128,7 @@
                     class="border-b hover:bg-gray-100 transition cursor-pointer">
 
 
-                    <td class="px-6 py-4 pl-12 font-medium">
+                    <td class="px-6 py-4 pl-12 font-medium pl-10">
 
                         {{ $client->full_name }}
 
@@ -235,7 +235,7 @@
                     class="border-b hover:bg-gray-100 transition cursor-pointer">
 
 
-                    <td class="px-6 py-4 font-medium">
+                    <td class="px-6 py-4 font-medium pl-10">
 
                         {{ $client->full_name }}
 

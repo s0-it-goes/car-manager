@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\OrderController;
@@ -77,9 +78,10 @@ Route::middleware('auth')->group(function () {
         return view('archive.index');
         })->name('archive.index');
 
-    Route::get('/profile', function () {
-        return view('profile.index');
-        })->name('profile.index');
+    Route::get('/profile', [ProfileController::class, 'index'])
+        ->name('profile.index');
+    Route::put('/profile/server-payment', [ProfileController::class, 'updateServerPayment'])
+        ->name('profile.server-payment.update');
 
     Route::get('/archive', [ArchiveController::class, 'index'])
         ->name('archive.index');

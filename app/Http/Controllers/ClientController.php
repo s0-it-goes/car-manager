@@ -13,80 +13,83 @@ class ClientController extends Controller
 
     public function index()
     {
-        // Активные клиенты без дилера
+        /*
+        |--------------------------------------------------------------------------
+        | Активные клиенты без дилера
+        |--------------------------------------------------------------------------
+        */
+
         $clients = Client::whereNull('dealer_id')
             ->where(function ($query) {
-
-                $query->whereDoesntHave('cars') // нет машин вообще
-
-                ->orWhereHas('cars', function ($q) {
-                    // есть активные машины
-                    $q->whereNotIn('status', [
-                        CarStatus::COMPLETED,
-                        CarStatus::CANCELLED
-                    ]);
-                });
-
+                $query->whereDoesntHave('cars')
+                    ->orWhereHas('cars', function ($q) {
+                        $q->whereNotIn('status', [
+                            CarStatus::COMPLETED,
+                            CarStatus::CANCELLED,
+                        ]);
+                    });
             })
             ->with([
                 'cars' => function ($query) {
                     $query->whereNotIn('status', [
                         CarStatus::COMPLETED,
-                        CarStatus::CANCELLED
-                    ])
-                    ->orderByDesc('updated_at');
+                        CarStatus::CANCELLED,
+                    ])->orderByDesc('updated_at');
                 }
             ])
             ->orderByDesc('updated_at')
             ->get();
 
+        /*
+        |--------------------------------------------------------------------------
+        | Активные дилеры
+        |--------------------------------------------------------------------------
+        |
+        | Дилер попадёт сюда только если у него есть хотя бы один
+        | клиент с хотя бы одним активным заказом.
+        |
+        */
 
-
-        // Активные клиенты дилеров
-        $dealers = Dealer::with([
-            'clients' => function ($query) {
-
-                $query->where(function ($q) {
-
-                    $q->whereDoesntHave('cars')
-
-                    ->orWhereHas('cars', function ($cars) {
+        $dealers = Dealer::whereHas('clients.cars', function ($query) {
+                $query->whereNotIn('status', [
+                    CarStatus::COMPLETED,
+                    CarStatus::CANCELLED,
+                ]);
+            })
+            ->with([
+                'clients' => function ($query) {
+                    $query->whereHas('cars', function ($cars) {
                         $cars->whereNotIn('status', [
                             CarStatus::COMPLETED,
-                            CarStatus::CANCELLED
+                            CarStatus::CANCELLED,
                         ]);
-                    });
+                    })
+                    ->orderByDesc('updated_at');
+                },
 
-                });
-
-            },
-
-            'clients.cars' => function ($query) {
-
-                $query->whereNotIn('status', [
-                    CarStatus::COMPLETED,
-                    CarStatus::CANCELLED
-                ]);
-
-            }
-
-        ])
-        ->whereHas('clients')
-        ->orderBy('full_name')
-        ->get();
+                'clients.cars' => function ($query) {
+                    $query->whereNotIn('status', [
+                        CarStatus::COMPLETED,
+                        CarStatus::CANCELLED,
+                    ])->orderByDesc('updated_at');
+                },
+            ])
+            ->orderBy('full_name')
+            ->get();
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Архивные клиенты без дилера
+        |--------------------------------------------------------------------------
+        */
 
-
-        // Архивные клиенты без дилера
         $archiveClients = Client::whereNull('dealer_id')
             ->whereDoesntHave('cars', function ($query) {
-
                 $query->whereNotIn('status', [
                     CarStatus::COMPLETED,
-                    CarStatus::CANCELLED
+                    CarStatus::CANCELLED,
                 ]);
-
             })
             ->whereHas('cars')
             ->with('cars')
@@ -94,43 +97,41 @@ class ClientController extends Controller
             ->get();
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Архивные дилеры
+        |--------------------------------------------------------------------------
+        |
+        | Дилер попадёт сюда только если у него есть клиенты,
+        | но ни у одного из них нет активных заказов.
+        |
+        */
 
-
-        // Архивные клиенты дилеров
-        $archiveDealers = Dealer::with([
-            'clients' => function ($query) {
-
-                $query->whereDoesntHave('cars', function ($q) {
-
-                    $q->whereNotIn('status', [
-                        CarStatus::COMPLETED,
-                        CarStatus::CANCELLED
-                    ]);
-
-                })
-                ->whereHas('cars');
-
-            },
-
-            'clients.cars'
-
-        ])
-        ->whereHas('clients', function ($query) {
-
-            $query->whereDoesntHave('cars', function ($q) {
-
-                $q->whereNotIn('status', [
-                    CarStatus::COMPLETED,
-                    CarStatus::CANCELLED
-                ]);
-
+        $archiveDealers = Dealer::whereHas('clients', function ($query) {
+                $query->whereHas('cars')
+                    ->whereDoesntHave('cars', function ($cars) {
+                        $cars->whereNotIn('status', [
+                            CarStatus::COMPLETED,
+                            CarStatus::CANCELLED,
+                        ]);
+                    });
             })
-            ->whereHas('cars');
+            ->with([
+                'clients' => function ($query) {
+                    $query->whereHas('cars')
+                        ->whereDoesntHave('cars', function ($cars) {
+                            $cars->whereNotIn('status', [
+                                CarStatus::COMPLETED,
+                                CarStatus::CANCELLED,
+                            ]);
+                        })
+                        ->orderByDesc('updated_at');
+                },
 
-        })
-        ->orderByDesc('updated_at')
-        ->get();
-
+                'clients.cars',
+            ])
+            ->orderByDesc('updated_at')
+            ->get();
 
 
         return view('clients.index', compact(

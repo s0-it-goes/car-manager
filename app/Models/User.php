@@ -13,7 +13,8 @@ class User extends Authenticatable
 {
     protected $fillable = [
         'login',
-        'password'
+        'password',
+        'server_paid_until'
     ];
 
     protected $hidden = [
@@ -24,7 +25,8 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'password' => 'hashed'
+            'password' => 'hashed',
+            'server_paid_until' => 'datetime',
         ];
-    }
+}
 }
