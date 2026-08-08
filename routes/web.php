@@ -60,6 +60,9 @@ Route::middleware('auth')->group(function () {
         ->name('orders.update');
     Route::delete('/orders/{car}', [OrderController::class, 'destroy'])
         ->name('orders.destroy');
+    Route::put('/orders/{car}', [OrderController::class, 'update'])
+        ->name('orders.update');
+
 
     Route::post('/orders/{car}/photos',
         [PhotoController::class, 'store']

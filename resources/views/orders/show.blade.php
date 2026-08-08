@@ -53,6 +53,9 @@
 
 @endif
 
+
+            
+
 <div class="flex justify-center">
     <div class="w-full max-w-3xl">
         <form
@@ -417,7 +420,59 @@
 
 
             </div>
+            
+            {{-- Задачи --}}
 
+            <div class="bg-white rounded-lg shadow mb-6">
+
+                <div class="border-b px-6 py-4">
+
+                    <h2 class="text-xl font-semibold">
+                        Задачи
+                    </h2>
+
+                </div>
+
+                <div class="p-6 space-y-4">
+
+                    @foreach($car->tasks as $task)
+
+                        <div class="flex items-center justify-between gap-6">
+
+                            <label class="font-medium text-gray-700">
+                                {{ $task->task->label() }}
+                            </label>
+
+                            <select
+                                name="tasks[{{ $task->task->value }}]"
+                                class="w-48 rounded-lg border border-gray-300 px-4 py-2">
+
+                                @foreach(\App\Enums\CarTaskStatus::cases() as $status)
+
+                                    <option
+                                        value="{{ $status->value }}"
+                                        @selected(
+                                            old(
+                                                "tasks.{$task->task->value}",
+                                                $task->status->value
+                                            ) === $status->value
+                                        )>
+
+                                        {{ $status->label() }}
+
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                        </div>
+
+                    @endforeach
+
+                </div>
+
+            </div>
 
             {{-- Заметки --}}
 
@@ -468,7 +523,7 @@
 
     <button
         type="submit"
-        class="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition">
+        class="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition cursor-pointer">
 
         Сохранить
 
@@ -486,10 +541,8 @@
 
 
 </form>
-{{-- ВАЖНО: здесь закрылась форма обновления заказа --}}
 
-
-
+{{-- здесь закрылась форма обновления заказа --}}
 
 
 {{-- Фото --}}
@@ -545,13 +598,14 @@
                     accept="image/*">
             </label>
 
-            <button
-                class="mt-4 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            <div class="flex justify-center">
+                <button
+                    class="mt-4 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer">
 
-                Загрузить фотографии
+                    Загрузить фотографии
 
-            </button>
-
+                </button>
+            </div>
         </form>
 
         @if($car->photos->isNotEmpty())
@@ -582,9 +636,7 @@
 
                             <button
                                 class="w-8 h-8 rounded-full bg-red-600 text-white hover:bg-red-700">
-
                                 ×
-
                             </button>
 
                         </form>
@@ -676,12 +728,15 @@
 
             </label>
 
-            <button
-                class="mt-4 px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
 
-                Загрузить документы
+            <div class="flex justify-center">
+                <button
+                    class="mt-4 px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer">
 
-            </button>
+                    Загрузить документы
+
+                </button>
+            </div>
 
         </form>
 
@@ -732,7 +787,7 @@
                             @method('DELETE')
 
                             <button
-                                class="text-red-600 hover:text-red-700">
+                                class="text-red-600 hover:text-red-700 cursor-pointer">
 
                                 Удалить
 
@@ -756,10 +811,10 @@
 
         @endif
 
+        
     </div>
 
 </div>
-
 
 {{-- Удаление заказа --}}
 

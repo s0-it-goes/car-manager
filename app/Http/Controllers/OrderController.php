@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\CarStatus;
+use App\Enums\CarTaskStatus;
+use App\Enums\CarTaskType;
 use App\Enums\Country;
 use App\Models\Car;
 use App\Models\Client;
 use App\Models\Dealer;
 use Illuminate\Http\Request;
-use App\Models\Photo;
-use App\Models\Document;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
@@ -20,18 +19,19 @@ class OrderController extends Controller
         $clients = Client::with([
             'dealer',
             'cars' => function ($query) {
-                $query->whereNotIn('status', [
-                    CarStatus::COMPLETED, 
-                    CarStatus::CANCELLED
-                    ])->orderByDesc('updated_at');
+                $query
+                    ->whereNotIn('status', [
+                        CarStatus::COMPLETED,
+                        CarStatus::CANCELLED,
+                    ])
+                    ->orderByDesc('updated_at');
             }
-        ])->whereHas('cars', function ($query) {
-
+        ])
+        ->whereHas('cars', function ($query) {
             $query->whereNotIn('status', [
                 CarStatus::COMPLETED,
-                CarStatus::CANCELLED
+                CarStatus::CANCELLED,
             ]);
-
         })
         ->whereNull('dealer_id')
         ->orderByDesc('updated_at')
@@ -39,52 +39,50 @@ class OrderController extends Controller
 
         $dealers = Dealer::with([
             'clients' => function ($query) {
-
                 $query->orderBy('full_name');
-
             },
 
             'clients.cars' => function ($query) {
-
-                $query->whereNotIn('status', [
-                    CarStatus::COMPLETED,
-                    CarStatus::CANCELLED
-                ])
-                ->orderByDesc('updated_at');
-
+                $query
+                    ->whereNotIn('status', [
+                        CarStatus::COMPLETED,
+                        CarStatus::CANCELLED,
+                    ])
+                    ->orderByDesc('updated_at');
             }
-
         ])
         ->whereHas('clients.cars', function ($query) {
-
             $query->whereNotIn('status', [
                 CarStatus::COMPLETED,
-                CarStatus::CANCELLED
+                CarStatus::CANCELLED,
             ]);
-
         })
         ->orderBy('full_name')
         ->get();
 
-
-        return view('orders.index', compact('clients', 'dealers'));
+        return view('orders.index', compact(
+            'clients',
+            'dealers'
+        ));
     }
 
     public function create()
     {
         $clients = Client::with('dealer')
-        ->orderBy('full_name')
-        ->get();
-        $dealers = Dealer::orderBy('full_name')->get();
+            ->orderBy('full_name')
+            ->get();
 
-        return view('orders.create', array_merge(compact('clients', 'dealers'),
+        $dealers = Dealer::orderBy('full_name')
+            ->get();
+
+        return view('orders.create', array_merge(
+            compact('clients', 'dealers'),
             [
                 'countries' => Country::cases(),
                 'statuses' => CarStatus::cases(),
-        ]));
+            ]
+        ));
     }
-
-
 
     public function store(Request $request)
     {
@@ -107,9 +105,11 @@ class OrderController extends Controller
             'buy_price' => 'nullable|numeric',
             'status' => 'required',
             'notes' => 'nullable|string',
-
         ]);
 
+        /*
+         * Определяем клиента
+         */
 
         if ($request->filled('client_id')) {
 
@@ -124,34 +124,23 @@ class OrderController extends Controller
                         'client_name' => 'Введите имя нового клиента.'
                     ])
                     ->withInput();
-
             }
 
-
             $client = Client::create([
-
                 'full_name' => $request->client_name,
                 'phone' => $request->client_phone,
                 'dealer_id' => $request->dealer_id,
                 'notes' => $request->client_notes,
-
             ]);
 
-
             $clientId = $client->id;
-
         }
 
+        /*
+         * Создаём автомобиль
+         */
 
-        $validated['client_id'] = $clientId;
-
-        unset(
-            $validated['client_name'],
-            $validated['client_phone'],
-            $validated['dealer_id']
-        );
-
-        Car::create([
+        $car = Car::create([
             'client_id' => $clientId,
             'country' => $validated['country'],
             'brand' => $validated['brand'],
@@ -163,6 +152,17 @@ class OrderController extends Controller
             'notes' => $validated['notes'],
         ]);
 
+        /*
+         * Создаём задачи для автомобиля
+         */
+
+        foreach (CarTaskType::cases() as $task) {
+
+            $car->tasks()->create([
+                'task' => $task,
+                'status' => CarTaskStatus::PENDING,
+            ]);
+        }
 
         return redirect()
             ->route('orders.index')
@@ -174,13 +174,15 @@ class OrderController extends Controller
         $car->load([
             'client.dealer',
             'photos',
-            'documents'
+            'documents',
+            'tasks',
         ]);
-        
+
         return view('orders.show', [
             'car' => $car,
             'countries' => Country::cases(),
             'statuses' => CarStatus::cases(),
+            'taskStatuses' => CarTaskStatus::cases(),
         ]);
     }
 
@@ -189,9 +191,24 @@ class OrderController extends Controller
         $validated = $request->validate([
 
             'country' => ['required'],
-            'brand' => ['nullable', 'string', 'max:100'],
-            'model' => ['nullable', 'string', 'max:100'],
-            'year' => ['nullable', 'integer'],
+
+            'brand' => [
+                'nullable',
+                'string',
+                'max:100'
+            ],
+
+            'model' => [
+                'nullable',
+                'string',
+                'max:100'
+            ],
+
+            'year' => [
+                'nullable',
+                'integer'
+            ],
+
             'chassis_number' => [
                 'nullable',
                 'string',
@@ -199,21 +216,72 @@ class OrderController extends Controller
                 'unique:cars,chassis_number,' . $car->id,
             ],
 
-            'buy_price' => ['nullable', 'numeric'],
+            'buy_price' => [
+                'nullable',
+                'numeric'
+            ],
 
-            'status' => ['required'],
+            'status' => [
+                'required'
+            ],
 
-            'notes' => ['nullable', 'string'],
+            'notes' => [
+                'nullable',
+                'string'
+            ],
 
-            'purchased_at' => ['nullable', 'date'],
+            'purchased_at' => [
+                'nullable',
+                'date'
+            ],
 
-            'arrived_at' => ['nullable', 'date'],
+            'arrived_at' => [
+                'nullable',
+                'date'
+            ],
 
-            'completed_at' => ['nullable', 'date'],
+            'completed_at' => [
+                'nullable',
+                'date'
+            ],
+
+            'tasks' => [
+                'required',
+                'array',
+            ],
+
+            'tasks.*' => [
+                'required',
+                'in:' . implode(
+                    ',',
+                    array_column(CarTaskStatus::cases(), 'value')
+                ),
+            ],
 
         ]);
 
-        $car->update($validated);
+        $car->update([
+            'country' => $validated['country'],
+            'brand' => $validated['brand'] ?? null,
+            'model' => $validated['model'] ?? null,
+            'year' => $validated['year'] ?? null,
+            'chassis_number' => $validated['chassis_number'] ?? null,
+            'buy_price' => $validated['buy_price'] ?? null,
+            'status' => $validated['status'],
+            'notes' => $validated['notes'] ?? null,
+            'purchased_at' => $validated['purchased_at'] ?? null,
+            'arrived_at' => $validated['arrived_at'] ?? null,
+            'completed_at' => $validated['completed_at'] ?? null,
+        ]);
+
+        foreach ($validated['tasks'] as $task => $status) {
+
+            $car->tasks()
+                ->where('task', $task)
+                ->update([
+                    'status' => $status,
+                ]);
+        }
 
         return redirect()
             ->route('orders.show', $car)
@@ -230,7 +298,6 @@ class OrderController extends Controller
             $photo->delete();
         }
 
-
         foreach ($car->documents as $document) {
 
             Storage::disk('public')
@@ -239,14 +306,11 @@ class OrderController extends Controller
             $document->delete();
         }
 
-
         $car->delete();
-
 
         return redirect()
             ->route('orders.index')
             ->with('success', 'Заказ успешно удален');
     }
 
-  
 }

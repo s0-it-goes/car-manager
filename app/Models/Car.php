@@ -49,10 +49,10 @@ class Car extends Model
     {
         return $this->hasMany(Document::class);
     }
-    /*
+    
     public function tasks()
     {
         return $this->hasMany(CarTask::class);
     }
-    */
+    
 }
